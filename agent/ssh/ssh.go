@@ -11,9 +11,9 @@ import (
 
 type (
 	Ssh struct {
-		Host     string `json:"host"`
-		Port     uint16 `json:"port" default:22`
-		Username string `json:"username"`
+		Host     string `json:"host" description:"Hostname or IP adress to connect to"`
+		Port     uint16 `json:"port" description:"TCP port to connect to" default:22`
+		Username string `json:"username" description:"Username"`
 	}
 )
 

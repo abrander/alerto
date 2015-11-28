@@ -11,7 +11,7 @@ import (
 type (
 	SshCommand struct {
 		Ssh
-		Command string `json:"command"`
+		Command string `json:"command" description:"Command to execute on remote host"`
 	}
 )
 
