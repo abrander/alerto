@@ -17,10 +17,9 @@ type (
 	}
 
 	Job struct {
-		AgentId   string          `json:"agentId" bson:"agentId"`
-		Timeout   time.Duration   `json:"timeout"`
-		Agent     Agent           `json:"-" bson:"arguments"` // This is some hackery to support both json and bson
-		Arguments json.RawMessage `json:"-,omitempty" bson:"-"`
+		AgentId string        `json:"agentId" bson:"agentId"`
+		Timeout time.Duration `json:"timeout"`
+		Agent   Agent         `json:"arguments" bson:"arguments"`
 	}
 
 	Request struct {
