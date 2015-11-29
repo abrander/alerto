@@ -81,8 +81,12 @@ func AddMonitor(mon *Monitor) error {
 	return collection.Insert(mon)
 }
 
-func DeleteMonitor(mon *Monitor) error {
-	return collection.RemoveId(mon.Id)
+func DeleteMonitor(id string) error {
+	if !bson.IsObjectIdHex(id) {
+		return ErrorInvalidId
+	}
+
+	return collection.RemoveId(bson.ObjectIdHex(id))
 }
 
 func Loop(wg sync.WaitGroup) {
