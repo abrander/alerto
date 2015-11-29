@@ -13,10 +13,11 @@
     <table class="table">
      <tr ng-repeat="mon in main.monitors">
       <td>{{ mon.id }}</td>
-      <td>{{ mon.interval }}</td>
+      <td>{{ mon.interval | goDuration }}</td>
       <td>{{ mon.agent.agentId }}</td>
       <td>{{ mon.agent.arguments | json }}</td>
       <td>{{ mon.lastResult.Measurements | json }}</td>
+      <td>{{ mon.lastResult.Measurements.time | goDuration }}</td>
       <td>
        <div class="btn-group btn-group-xs" role="group" aria-label="...">
         <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span> Clone</button>
