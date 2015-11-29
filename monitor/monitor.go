@@ -15,9 +15,9 @@ import (
 
 type (
 	Monitor struct {
-		Id         bson.ObjectId `json:"-" bson:"_id"`
+		Id         bson.ObjectId `json:"id" bson:"_id"`
 		Interval   time.Duration `json:"interval"`
-		Agent      agent.Job     `json:"test"`
+		Agent      agent.Job     `json:"agent"`
 		LastCheck  time.Time     `json:"lastCheck"`
 		NextCheck  time.Time     `json:"nextCheck"`
 		LastResult agent.Result  `json:"lastResult"`
