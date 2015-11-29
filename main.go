@@ -10,6 +10,7 @@ import (
 	_ "github.com/abrander/alerto/agent/icmpping"
 	_ "github.com/abrander/alerto/agent/noop"
 	_ "github.com/abrander/alerto/agent/ssh"
+	"github.com/abrander/alerto/api"
 	"github.com/abrander/alerto/monitor"
 )
 
@@ -19,6 +20,9 @@ func init() {
 
 func main() {
 	wg := sync.WaitGroup{}
+
+	wg.Add(1)
+	go api.Run(wg)
 
 	wg.Add(1)
 	monitor.Loop(wg)
