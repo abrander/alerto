@@ -187,18 +187,18 @@ Alerto.Filter.GoDuration = function() {
 		}
 
 		if (d < Second) {
-			return d / Millisecond + "ms";
+			return (d / Millisecond).toFixed(2) + "ms";
 		}
 
 		if (d < Minute) {
-			return d / Second + "s";
+			return (d / Second) + "s";
 		}
 
 		if (d < Hour) {
-			return d / Minute + "m";
+			return Math.floor(d / Minute) + "m" + Math.floor(d % Minute / Second) + "s";
 		}
 
-		return d / Hour + "h";
+		return Math.floor(d / Hour) + "h" + Math.floor(d % Hour / Minute) + "m" + Math.floor(d % Minute / Second) + "s";
 	};
 
 	return filter;
