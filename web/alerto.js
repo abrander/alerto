@@ -80,18 +80,17 @@ Alerto.Filter.GoDuration = function() {
 	 * @return {string}
 	 */
 	var filter = function(value) {
-		console.dir(value);
 		if (value == undefined)
-			return "-";
+			return '-';
 
 		var d = parseInt(value);
 
 		if (d < Microsecond) {
-			return d + 'ns';
+			return d + "ns";
 		}
 
 		if (d < Millisecond) {
-			return d / Microsecond + 'µs';
+			return d / Microsecond + "µs";
 		}
 
 		if (d < Second) {
@@ -99,14 +98,14 @@ Alerto.Filter.GoDuration = function() {
 		}
 
 		if (d < Minute) {
-			return d/Second + "s";
+			return d / Second + "s";
 		}
 
 		if (d < Hour) {
-			return d/Minute + "m";
+			return d / Minute + "m";
 		}
 
-		return d/Hour + "h";
+		return d / Hour + "h";
 	};
 
 	return filter;
