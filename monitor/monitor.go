@@ -23,6 +23,11 @@ type (
 		NextCheck  time.Time     `json:"nextCheck"`
 		LastResult agent.Result  `json:"lastResult"`
 	}
+
+	Change struct {
+		Type    string      `json:"type"`
+		Monitor interface{} `json:"payload"`
+	}
 )
 
 var (
@@ -31,6 +36,9 @@ var (
 	collection *mgo.Collection
 
 	ErrorInvalidId error = errors.New("Invalid id")
+
+	channelLock sync.Mutex
+	changes     []chan Change
 )
 
 func init() {
@@ -72,11 +80,33 @@ func GetMonitor(id string) (Monitor, error) {
 }
 
 func UpdateMonitor(mon *Monitor) error {
+	change := Change{
+		Type:    "monchange",
+		Monitor: *mon,
+	}
+
+	channelLock.Lock()
+	for _, ch := range changes {
+		ch <- change
+	}
+	channelLock.Unlock()
+
 	return collection.UpdateId(mon.Id, mon)
 }
 
 func AddMonitor(mon *Monitor) error {
 	mon.Id = bson.NewObjectId()
+
+	change := Change{
+		Type:    "monadd",
+		Monitor: *mon,
+	}
+
+	channelLock.Lock()
+	for _, ch := range changes {
+		ch <- change
+	}
+	channelLock.Unlock()
 
 	return collection.Insert(mon)
 }
@@ -86,7 +116,39 @@ func DeleteMonitor(id string) error {
 		return ErrorInvalidId
 	}
 
+	change := Change{
+		Type:    "mondelete",
+		Monitor: id,
+	}
+
+	channelLock.Lock()
+	for _, ch := range changes {
+		ch <- change
+	}
+	channelLock.Unlock()
+
 	return collection.RemoveId(bson.ObjectIdHex(id))
+}
+
+func SubscribeChanges() chan Change {
+	channel := make(chan Change)
+	channelLock.Lock()
+	changes = append(changes, channel)
+	channelLock.Unlock()
+
+	return channel
+}
+
+func UnsubscribeChanges(ch chan Change) {
+	channelLock.Lock()
+
+	for i, c := range changes {
+		if ch == c {
+			changes = append(changes[:i], changes[i+1:]...)
+			break
+		}
+	}
+	channelLock.Unlock()
 }
 
 func Loop(wg sync.WaitGroup) {
@@ -117,7 +179,7 @@ func Loop(wg sync.WaitGroup) {
 				mon.NextCheck = t.Add(checkIn)
 				logger.Yellow("monitor", "%s %s: Delaying first check by %s", mon.Id.Hex(), mon.Agent.AgentId, checkIn)
 
-				err = collection.UpdateId(mon.Id, mon)
+				err = UpdateMonitor(&mon)
 				if err != nil {
 					logger.Red("Error updating: %v", err.Error())
 				}
@@ -137,7 +199,7 @@ func Loop(wg sync.WaitGroup) {
 					mon.LastCheck = t
 					mon.NextCheck = t.Add(mon.Interval)
 
-					err = collection.UpdateId(mon.Id, mon)
+					err = UpdateMonitor(&mon)
 					if err != nil {
 						logger.Red("monitor", "Error updating: %s\n", err.Error())
 					}

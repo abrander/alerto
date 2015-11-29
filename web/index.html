@@ -6,6 +6,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
     <script src="alerto.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <style>
+.flash {
+    animation-name: flash-animation;
+    animation-duration: 0.3s;
+}
+
+@keyframes flash-animation {
+    from { background: #88a5ee; }
+    to   { background: default; }
+}
+    </style>
   </head>
   <body ng-controller="MainController as main" style="margin-top: 44px;">
 
@@ -26,7 +37,7 @@
    <div class="container">
     <h3>Monitors</h3>
     <table class="table">
-     <tr ng-repeat="mon in main.monitors">
+     <tr ng-repeat="mon in main.monitors" flash-anim>
       <td>{{ mon.id }}</td>
       <td>{{ mon.interval | goDuration }}</td>
       <td>{{ mon.agent.agentId }}</td>

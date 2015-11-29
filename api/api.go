@@ -45,6 +45,7 @@ func wshandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ticker := time.Tick(time.Second)
+	changes := monitor.SubscribeChanges()
 
 	status := Status{
 		Started: StartTime,
@@ -57,11 +58,18 @@ func wshandler(w http.ResponseWriter, r *http.Request) {
 			status.Uptime = t.Sub(StartTime)
 			err := conn.WriteJSON(Message{Type: "status", Payload: status})
 			if err != nil {
-				// Is this correct behavior?
-				return
+				goto unsubscribe
+			}
+		case msg := <-changes:
+			err := conn.WriteJSON(msg)
+			if err != nil {
+				goto unsubscribe
 			}
 		}
 	}
+
+unsubscribe:
+	monitor.UnsubscribeChanges(changes)
 }
 
 func Run(wg sync.WaitGroup) {

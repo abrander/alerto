@@ -110,6 +110,26 @@ Alerto.Controller.MainController = function(MonitorService, $http, $uibModal, $s
 				case 'status':
 					self.uptime = message.payload.uptime;
 					break;
+				case 'monadd':
+					self.monitors.push(message.payload);
+					break;
+				case 'monchange':
+					self.monitors.forEach(function(monitor, index) {
+						if (monitor.id == message.payload.id) {
+							self.monitors[index] = message.payload;
+						}
+					});
+					break;
+				case 'mondelete':
+					self.monitors.forEach(function(monitor, index) {
+						if (monitor.id == message.payload) {
+							self.monitors.splice(index, 1);
+						}
+					});
+					break;
+				default:
+					console.warn("Unsupported message type: " + message.type);
+					break;
 			}
 		});
 	};
@@ -185,3 +205,27 @@ Alerto.Filter.GoDuration = function() {
 };
 
 alerto.filter('goDuration', Alerto.Filter.GoDuration);
+
+/**
+ * @ngInject
+ * @constructor
+ */
+Alerto.Directive.FlashAnim = function() {
+	/**
+	 * @param {angular.Scope} scope
+	 * @param {angular.JQLite} element
+	 * @param {angular.Attributes} attrs
+	 * @return {void}
+	 */
+	return function(scope, element, attrs) {
+		scope.$watch('monitor', function() {
+
+			element.addClass('flash');
+			setTimeout(function() {
+				element.removeClass('flash');
+			}, 400);
+		});
+	};
+};
+
+alerto.directive('flashAnim', Alerto.Directive.FlashAnim);
