@@ -3,6 +3,7 @@
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular-resource.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
     <script src="alerto.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
   </head>
@@ -40,9 +41,66 @@
          {{ par.description }}
         </span>
       </td>
+      <td>
+       <button class="btn btn-default btn-xs" ng-click="main.addMonitor(name)"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add monitor</button>
+      </td>
      </tr>
     </table>
    </div>
-
   </body>
+
+  <script type="text/ng-template" id="newMonitorTemplate">
+    <div>
+     <label>Check interval</label>
+     <div class="input-group">
+      <input class="form-control" ng-model="newMonitor.interval" type="number"></input>
+      <span class="input-group-addon">seconds</span>
+     </div>
+    </div>
+    <div ng-repeat="par in agent.parameters">
+     <div ng-switch="par.type">
+
+      <div ng-switch-when="string">
+       <label>{{ par.description }}</label>
+       <div class="input-group">
+        <input ng-model="newMonitor.agent.arguments[par.name]"></input>
+       </div>
+      </div>
+
+      <div ng-switch-when="enum">
+       <label>{{ par.description }} ({{ par.name }})</label>
+       <div class="input-group">
+        <select ng-model="newMonitor.agent.arguments[par.name]">
+         <option ng-repeat="value in par.enumValues" value="{{ value }}">{{ value }}</option>
+        </select>
+       </div>
+      </div>
+
+      <div ng-switch-when="uint16">
+       <label>{{ par.description }}</label>
+       <div class="input-group">
+        <input ng-model="newMonitor.agent.arguments[par.name]" type="number"></input>
+       </div>
+      </div>
+
+      <div ng-switch-default>
+       <label>{{ par.description }}</label>
+       {{ par | json }}
+      </div>
+     </div>
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="newMonitorModalTemplate">
+   <div class="modal-header">
+    <h3 class="modal-title">Add {{ agent.agentId }} monitor</h3>
+   </div>
+   <div class="modal-body">
+   <ng-include src="'newMonitorTemplate'"></ng-include>
+   </div>
+   <div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="ok()">Add monitor</button>
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Close</button>
+   </div>
+ </script>
 </html>

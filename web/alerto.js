@@ -1,4 +1,4 @@
-var alerto = angular.module('alerto', ['ngResource']);
+var alerto = angular.module('alerto', ['ngResource', 'ui.bootstrap']);
 
 var Alerto = {};
 
@@ -34,7 +34,12 @@ Alerto.Service = {};
  * @suppress {checkTypes}
  */
 Alerto.Factory.MonitorService = function($resource) {
-    return $resource('/monitor/:id', {id: '@id'});
+	return $resource('/monitor/:id', {id: '@id'}, {
+		save: {
+			url: '/monitor/new',
+			method: 'POST'
+		}
+	});
 };
 
 alerto.factory('MonitorService', Alerto.Factory.MonitorService);
@@ -43,7 +48,7 @@ alerto.factory('MonitorService', Alerto.Factory.MonitorService);
  * @ngInject
  * @constructor
  */
-Alerto.Controller.MainController = function(MonitorService, $http) {
+Alerto.Controller.MainController = function(MonitorService, $http, $uibModal) {
 	var self = this;
 
 	this.monitors = MonitorService.query();
@@ -59,9 +64,54 @@ Alerto.Controller.MainController = function(MonitorService, $http) {
 	this.deleteMonitor = function(id) {
 		MonitorService.delete({id: id});
 	};
+
+	/**
+	 * @expose
+	 * @param {string} agentId
+	 */
+	this.addMonitor = function(agentId) {
+		var modalInstance = $uibModal.open({
+			animation: true,
+			templateUrl: 'newMonitorModalTemplate',
+			controller: 'NewMonitorController',
+			size: 'lg',
+			resolve: {
+				agent: function() {
+					var agent = self.agents[agentId];
+					agent.agentId = agentId;
+					return agent;
+					}
+				}
+			});
+		modalInstance.result.then(function(result) {
+			// Convert to seconds
+			result.interval *= 1000000000;
+			result.agent.agentId = agentId;
+			MonitorService.save(result);
+		});
+	};
 };
 
 alerto.controller('MainController', Alerto.Controller.MainController);
+
+/**
+ * @ngInject
+ * @constructor
+ */
+Alerto.Controller.NewMonitorController = function($scope, $uibModalInstance, agent) {
+	$scope.agent = agent;
+	$scope.newMonitor = {};
+
+	$scope.ok = function() {
+		$uibModalInstance.close($scope.newMonitor);
+	};
+
+	$scope.cancel = function() {
+		$uibModalInstance.dismiss('cancel');
+	};
+};
+
+alerto.controller('NewMonitorController', Alerto.Controller.NewMonitorController);
 
 /**
  * @ngInject
