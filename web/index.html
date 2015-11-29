@@ -1,0 +1,47 @@
+<!doctype html>
+<html ng-app="alerto">
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular-resource.min.js"></script>
+    <script src="alerto.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  </head>
+  <body class="container" ng-controller="MainController as main">
+
+   <div>
+    <h3>Monitors</h3>
+    <table class="table">
+     <tr ng-repeat="mon in main.monitors">
+      <td>{{ mon.id }}</td>
+      <td>{{ mon.interval }}</td>
+      <td>{{ mon.agent.agentId }}</td>
+      <td>{{ mon.agent.arguments | json }}</td>
+      <td>{{ mon.lastResult.Measurements | json }}</td>
+      <td>
+       <div class="btn-group btn-group-xs" role="group" aria-label="...">
+        <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span> Clone</button>
+        <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit</button>
+        <button type="button" class="btn btn-danger" ng-click="main.deleteMonitor(mon.id)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+
+   <div>
+    <h3>Registered agents</h3>
+    <table class="table">
+     <tr ng-repeat="(name, agent) in main.agents">
+      <td>{{ name }}</td>
+      <td>
+        <span ng-repeat="par in agent.parameters" style="display:inline-block;margin-right:10px;border-left:1px solid #ccc;padding:5px;">
+         <b>{{ par.name }}</b><br/>
+         {{ par.description }}
+        </span>
+      </td>
+     </tr>
+    </table>
+   </div>
+
+  </body>
+</html>
