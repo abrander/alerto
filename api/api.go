@@ -1,14 +1,68 @@
 package api
 
 import (
+	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 
 	"github.com/abrander/alerto/agent"
 	"github.com/abrander/alerto/monitor"
 )
+
+type (
+	Message struct {
+		Type    string      `json:"type"`
+		Payload interface{} `json:"payload"`
+	}
+
+	Status struct {
+		Uptime  time.Duration `json:"uptime"`
+		Clock   time.Time     `json:"clock"`
+		Started time.Time     `json:"start"`
+	}
+)
+
+var (
+	StartTime  time.Time
+	wsupgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+)
+
+func init() {
+	StartTime = time.Now()
+}
+
+func wshandler(w http.ResponseWriter, r *http.Request) {
+	conn, err := wsupgrader.Upgrade(w, r, nil)
+	if err != nil {
+		return
+	}
+
+	ticker := time.Tick(time.Second)
+
+	status := Status{
+		Started: StartTime,
+	}
+
+	for {
+		select {
+		case t := <-ticker:
+			status.Clock = t
+			status.Uptime = t.Sub(StartTime)
+			err := conn.WriteJSON(Message{Type: "status", Payload: status})
+			if err != nil {
+				// Is this correct behavior?
+				return
+			}
+		}
+	}
+}
 
 func Run(wg sync.WaitGroup) {
 	gin.SetMode(gin.ReleaseMode)
@@ -17,6 +71,10 @@ func Run(wg sync.WaitGroup) {
 	router.Use(gin.Logger())
 
 	router.Use(static.Serve("/", static.LocalFile("/home/abrander/gocode/src/github.com/abrander/alerto/web/", true)))
+
+	router.GET("/ws", func(c *gin.Context) {
+		wshandler(c.Writer, c.Request)
+	})
 
 	a := router.Group("/agent")
 	{

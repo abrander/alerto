@@ -48,10 +48,11 @@ alerto.factory('MonitorService', Alerto.Factory.MonitorService);
  * @ngInject
  * @constructor
  */
-Alerto.Controller.MainController = function(MonitorService, $http, $uibModal) {
+Alerto.Controller.MainController = function(MonitorService, $http, $uibModal, $scope) {
 	var self = this;
 
 	this.monitors = MonitorService.query();
+	this.uptime = 0;
 
 	this.agents = {};
 	$http.get('/agent/').then(function(response) {
@@ -88,6 +89,28 @@ Alerto.Controller.MainController = function(MonitorService, $http, $uibModal) {
 			result.interval *= 1000000000;
 			result.agent.agentId = agentId;
 			MonitorService.save(result);
+		});
+	};
+
+	// Construct websocket url
+	var url = '';
+	if (window.location.protocol.replace(/:/g, '') === 'https')
+		url += 'wss://';
+	else
+		url += 'ws://';
+	url += window.location.host + '/ws';
+
+	var socket = new WebSocket(url);
+
+	socket.onmessage = function(msg) {
+		var message = JSON.parse(msg.data);
+		$scope.$apply(function() {
+
+			switch (message.type) {
+				case 'status':
+					self.uptime = message.payload.uptime;
+					break;
+			}
 		});
 	};
 };
