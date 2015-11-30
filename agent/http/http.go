@@ -28,6 +28,7 @@ func (h *Http) Execute(request agent.Request) agent.Result {
 	if err != nil {
 		return agent.NewResult(agent.Failed, agent.NewMeasurementCollection("time", time.Now().Sub(start)), err.Error())
 	}
+	defer resp.Body.Close()
 
 	c := agent.NewMeasurementCollection(
 		"time", time.Now().Sub(start),
