@@ -1,8 +1,11 @@
-package agent
+package plugins
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 type (
@@ -36,12 +39,17 @@ func (job *Job) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	a, found := agents[job.AgentId]
+	a, found := plugins[job.AgentId]
 	if !found {
 		return fmt.Errorf("unknown agentId '%s'", job.AgentId)
 	}
 
-	job.Agent = a()
+	agent, ok := a().(Agent)
+	if !ok {
+		return fmt.Errorf("plugin '%s' does not implement plugins.Agent", job.AgentId)
+	}
+
+	job.Agent = agent
 
 	err = json.Unmarshal(argumentsRaw, job.Agent)
 	if err != nil {
@@ -79,12 +87,17 @@ func (job *Job) SetBSON(raw bson.Raw) error {
 		}
 	}
 
-	a, found := agents[job.AgentId]
+	a, found := plugins[job.AgentId]
 	if !found {
-		return fmt.Errorf("unknown agent '%s'", job.AgentId)
+		return fmt.Errorf("unknown agentId '%s'", job.AgentId)
 	}
 
-	job.Agent = a()
+	agent, ok := a().(Agent)
+	if !ok {
+		return fmt.Errorf("plugin '%s' does not implement plugins.Agent", job.AgentId)
+	}
+
+	job.Agent = agent
 
 	argumentsRaw, found := m["arguments"]
 	if !found {

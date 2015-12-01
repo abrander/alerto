@@ -5,13 +5,13 @@ import (
 	"sync"
 	"time"
 
-	_ "github.com/abrander/alerto/agent/dns"
-	_ "github.com/abrander/alerto/agent/http"
-	_ "github.com/abrander/alerto/agent/icmpping"
-	_ "github.com/abrander/alerto/agent/noop"
-	_ "github.com/abrander/alerto/agent/ssh"
 	"github.com/abrander/alerto/api"
 	"github.com/abrander/alerto/monitor"
+	_ "github.com/abrander/alerto/plugins/dns"
+	_ "github.com/abrander/alerto/plugins/http"
+	_ "github.com/abrander/alerto/plugins/icmpping"
+	_ "github.com/abrander/alerto/plugins/noop"
+	_ "github.com/abrander/alerto/plugins/ssh"
 )
 
 func init() {

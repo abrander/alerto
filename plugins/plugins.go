@@ -1,18 +1,18 @@
-package agent
+package plugins
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"reflect"
 	"strings"
 	"time"
-
-	"gopkg.in/mgo.v2/bson"
 )
 
 type (
+	Plugin interface {
+	}
+
 	Agent interface {
+		Plugin
 		Execute(Request) Result
 	}
 
@@ -38,7 +38,7 @@ type (
 		EnumValues  []string `json:"enumValues"`
 	}
 
-	Constructor func() Agent
+	Constructor func() Plugin
 
 	Status int
 )
@@ -48,16 +48,16 @@ const (
 	Failed = 1
 )
 
-var agents = map[string]func() Agent{}
+var plugins = map[string]func() Plugin{}
 
 func Register(protocol string, constructor Constructor) {
-	_, exists := agents[protocol]
+	_, exists := plugins[protocol]
 	if exists {
-		log.Fatal("agent.Register(): Duplicate protocol: '%s' (%T and %T)\n", protocol, agents[protocol], constructor())
+		log.Fatal("plugins.Register(): Duplicate protocol: '%s' (%T and %T)\n", protocol, plugins[protocol], constructor())
 		return
 	}
 
-	agents[protocol] = constructor
+	plugins[protocol] = constructor
 }
 
 func getParams(elem reflect.Type) []Parameter {
@@ -93,15 +93,26 @@ func getParams(elem reflect.Type) []Parameter {
 	return parameters
 }
 
-func AvailableAgents() map[string]Description {
+func getPlugins(iType reflect.Type) map[string]Description {
 	r := make(map[string]Description)
 
-	for name, agent := range agents {
-		elem := reflect.TypeOf(agent()).Elem()
-		parameters := getParams(elem)
+	for name, plugin := range plugins {
+		pType := reflect.TypeOf(plugin())
+		elem := reflect.TypeOf(plugin()).Elem()
+		if pType.Implements(iType) {
+			parameters := getParams(elem)
 
-		r[name] = Description{Parameters: parameters}
+			r[name] = Description{Parameters: parameters}
+		}
 	}
 
 	return r
+}
+
+func AvailableAgents() map[string]Description {
+	return getPlugins(reflect.TypeOf((*Agent)(nil)).Elem())
+}
+
+func AvailablePlugins() map[string]Description {
+	return getPlugins(reflect.TypeOf((*Plugin)(nil)).Elem())
 }

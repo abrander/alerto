@@ -4,14 +4,14 @@ import (
 	"net"
 	"time"
 
-	"github.com/abrander/alerto/agent"
+	"github.com/abrander/alerto/plugins"
 )
 
 func init() {
-	agent.Register("dns", NewDns)
+	plugins.Register("dns", NewDns)
 }
 
-func NewDns() agent.Agent {
+func NewDns() plugins.Plugin {
 	return new(Dns)
 }
 
@@ -65,7 +65,7 @@ func GetIPv6(hostname string) ([]net.IP, error) {
 	return list6, nil
 }
 
-func (i *Dns) Execute(request agent.Request) agent.Result {
+func (i *Dns) Execute(request plugins.Request) plugins.Result {
 	entries := []net.IP{}
 
 	start := time.Now()
@@ -82,16 +82,16 @@ func (i *Dns) Execute(request agent.Request) agent.Result {
 	case "AAAA":
 		entries, err = GetIPv6(i.Target)
 	default:
-		return agent.NewResult(agent.Failed, nil, "method '%s' not supported", i.RecordType)
+		return plugins.NewResult(plugins.Failed, nil, "method '%s' not supported", i.RecordType)
 	}
 
 	if err != nil {
-		return agent.NewResult(agent.Failed, agent.NewMeasurementCollection("time", time.Now().Sub(start)), err.Error())
+		return plugins.NewResult(plugins.Failed, plugins.NewMeasurementCollection("time", time.Now().Sub(start)), err.Error())
 	}
 
 	if len(entries) > 0 {
-		return agent.NewResult(agent.Ok, agent.NewMeasurementCollection("time", time.Now().Sub(start)), "%d addresses", len(entries))
+		return plugins.NewResult(plugins.Ok, plugins.NewMeasurementCollection("time", time.Now().Sub(start)), "%d addresses", len(entries))
 	} else {
-		return agent.NewResult(agent.Failed, agent.NewMeasurementCollection("time", time.Now().Sub(start)), "no addresses")
+		return plugins.NewResult(plugins.Failed, plugins.NewMeasurementCollection("time", time.Now().Sub(start)), "no addresses")
 	}
 }

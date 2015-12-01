@@ -14,8 +14,8 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 
-	"github.com/abrander/alerto/agent"
 	"github.com/abrander/alerto/logger"
+	"github.com/abrander/alerto/plugins"
 )
 
 type (
@@ -49,12 +49,12 @@ func init() {
 
 	active = make(map[uint16]chan IcmpReply)
 
-	agent.Register("icmp4", NewIcmpPing)
+	plugins.Register("icmp4", NewIcmpPing)
 
 	go ListenLoop()
 }
 
-func NewIcmpPing() agent.Agent {
+func NewIcmpPing() plugins.Plugin {
 	return new(IcmpPing)
 }
 
@@ -131,11 +131,11 @@ func ListenLoop() {
 	}
 }
 
-func (i *IcmpPing) Execute(request agent.Request) agent.Result {
+func (i *IcmpPing) Execute(request plugins.Request) plugins.Result {
 	ra, err := net.ResolveIPAddr("ip4:icmp", i.Target)
 
 	if err != nil {
-		return agent.NewResult(agent.Failed, nil, err.Error())
+		return plugins.NewResult(plugins.Failed, nil, err.Error())
 	}
 
 	i.id = rand.Intn(0xffff)
@@ -164,9 +164,9 @@ func (i *IcmpPing) Execute(request agent.Request) agent.Result {
 	activeLock.Unlock()
 
 	if n, err := conn.WriteTo(bytes, ra); err != nil {
-		return agent.NewResult(agent.Failed, nil, err.Error())
+		return plugins.NewResult(plugins.Failed, nil, err.Error())
 	} else if n != len(bytes) {
-		return agent.NewResult(agent.Failed, nil, "sent %d bytes; wanted %d", n, len(bytes))
+		return plugins.NewResult(plugins.Failed, nil, "sent %d bytes; wanted %d", n, len(bytes))
 	}
 
 	start := time.Now()
@@ -175,7 +175,7 @@ func (i *IcmpPing) Execute(request agent.Request) agent.Result {
 	for {
 		select {
 		case <-c:
-			return agent.NewResult(agent.Failed, agent.NewMeasurementCollection("time", time.Now().Sub(start)), "timeout [%s]", i.Target)
+			return plugins.NewResult(plugins.Failed, plugins.NewMeasurementCollection("time", time.Now().Sub(start)), "timeout [%s]", i.Target)
 
 		case reply := <-replyChannel:
 			activeLock.Lock()
@@ -184,9 +184,9 @@ func (i *IcmpPing) Execute(request agent.Request) agent.Result {
 
 			switch reply.Status {
 			case Reply:
-				return agent.NewResult(agent.Ok, agent.NewMeasurementCollection("time", time.Now().Sub(start)), "reply from %s [%s]", reply.Source, i.Target)
+				return plugins.NewResult(plugins.Ok, plugins.NewMeasurementCollection("time", time.Now().Sub(start)), "reply from %s [%s]", reply.Source, i.Target)
 			case Unreachable:
-				return agent.NewResult(agent.Failed, agent.NewMeasurementCollection("time", time.Now().Sub(start)), "unreachable from %s [%s]", reply.Source, i.Target)
+				return plugins.NewResult(plugins.Failed, plugins.NewMeasurementCollection("time", time.Now().Sub(start)), "unreachable from %s [%s]", reply.Source, i.Target)
 			}
 		}
 	}

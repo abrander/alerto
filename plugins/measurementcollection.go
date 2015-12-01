@@ -1,4 +1,4 @@
-package agent
+package plugins
 
 import (
 	"fmt"
@@ -34,11 +34,11 @@ func NewMeasurementCollection(args ...interface{}) *MeasurementCollection {
 			case time.Duration:
 				c[key] = Measurement(value.(time.Duration).Nanoseconds())
 			default:
-				logger.Error("agent", "Unsupported type")
+				logger.Error("plugins", "Unsupported type")
 			}
 		}
 	} else if l > 0 {
-		logger.Error("agent", "Wrong number of arguments to NewMeasurementCollection()")
+		logger.Error("plugins", "Wrong number of arguments to NewMeasurementCollection()")
 	}
 
 	return &c

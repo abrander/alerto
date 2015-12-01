@@ -10,18 +10,18 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/abrander/alerto/agent"
 	"github.com/abrander/alerto/logger"
+	"github.com/abrander/alerto/plugins"
 )
 
 type (
 	Monitor struct {
-		Id         bson.ObjectId `json:"id" bson:"_id"`
-		Interval   time.Duration `json:"interval"`
-		Agent      agent.Job     `json:"agent"`
-		LastCheck  time.Time     `json:"lastCheck"`
-		NextCheck  time.Time     `json:"nextCheck"`
-		LastResult agent.Result  `json:"lastResult"`
+		Id         bson.ObjectId  `json:"id" bson:"_id"`
+		Interval   time.Duration  `json:"interval"`
+		Agent      plugins.Job    `json:"agent"`
+		LastCheck  time.Time      `json:"lastCheck"`
+		NextCheck  time.Time      `json:"nextCheck"`
+		LastResult plugins.Result `json:"lastResult"`
 	}
 
 	Change struct {
@@ -190,7 +190,7 @@ func Loop(wg sync.WaitGroup) {
 
 				go func(mon Monitor) {
 					r := mon.Agent.Run()
-					if r.Status == agent.Ok {
+					if r.Status == plugins.Ok {
 						logger.Green("monitor", "%s %s: %s [%s]: %s", mon.Id.Hex(), mon.Agent.AgentId, r.Text, r.Duration, r.Measurements)
 					} else {
 						logger.Red("monitor", "%s %s: %s [%s]", mon.Id.Hex(), mon.Agent.AgentId, r.Text, r.Duration)

@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
-	"github.com/abrander/alerto/agent"
 	"github.com/abrander/alerto/monitor"
+	"github.com/abrander/alerto/plugins"
 )
 
 type (
@@ -87,7 +87,7 @@ func Run(wg sync.WaitGroup) {
 	a := router.Group("/agent")
 	{
 		a.GET("/", func(c *gin.Context) {
-			c.JSON(200, agent.AvailableAgents())
+			c.JSON(200, plugins.AvailableAgents())
 		})
 	}
 
