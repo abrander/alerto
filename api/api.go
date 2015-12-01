@@ -84,6 +84,13 @@ func Run(wg sync.WaitGroup) {
 		wshandler(c.Writer, c.Request)
 	})
 
+	t := router.Group("/transport")
+	{
+		t.GET("/", func(c *gin.Context) {
+			c.JSON(200, plugins.AvailableTransports())
+		})
+	}
+
 	a := router.Group("/agent")
 	{
 		a.GET("/", func(c *gin.Context) {

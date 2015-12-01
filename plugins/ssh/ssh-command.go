@@ -2,7 +2,7 @@ package ssh
 
 import (
 	"bytes"
-	"strings"
+	"io"
 
 	"github.com/abrander/alerto/logger"
 	"github.com/abrander/alerto/plugins"
@@ -11,7 +11,6 @@ import (
 type (
 	SshCommand struct {
 		Ssh
-		Command string `json:"command" description:"Command to execute on remote host"`
 	}
 )
 
@@ -23,26 +22,31 @@ func NewSshCommand() plugins.Plugin {
 	return new(SshCommand)
 }
 
-func (s SshCommand) Execute(request plugins.Request) plugins.Result {
-	logger.Yellow("ssh", "Executing command '%s' on %s:%d as %s", s.Command, s.Ssh.Host, s.Ssh.Port, s.Username)
+func (s *SshCommand) Exec(cmd string) (io.Reader, io.Reader, error) {
+	logger.Yellow("ssh", "Executing command '%s' on %s:%d as %s", cmd, s.Ssh.Host, s.Ssh.Port, s.Username)
 	conn, err := pool.Get(s.Ssh)
 	if err != nil {
-		return plugins.NewResult(plugins.Failed, nil, err.Error())
+		return nil, nil, err
 	}
 	defer pool.Done(s.Ssh)
 
 	session, err := conn.NewSession()
 	if err != nil {
-		return plugins.NewResult(plugins.Failed, nil, err.Error())
+		return nil, nil, err
 	}
 	defer session.Close()
-	var stdoutBuf bytes.Buffer
-	session.Stdout = &stdoutBuf
 
-	err = session.Run(s.Command)
+	var stdoutBuf, stderrBuf bytes.Buffer
+	session.Stdout = &stdoutBuf
+	session.Stderr = &stderrBuf
+
+	err = session.Run(cmd)
 	if err != nil {
-		return plugins.NewResult(plugins.Failed, nil, err.Error())
+		return &stdoutBuf, &stderrBuf, err
 	}
 
-	return plugins.NewResult(plugins.Ok, nil, strings.TrimSpace(stdoutBuf.String()))
+	return &stdoutBuf, &stderrBuf, nil
 }
+
+// Ensure compliance
+var _ plugins.Transport = (*SshCommand)(nil)

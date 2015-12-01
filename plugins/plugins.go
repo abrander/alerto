@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"io"
 	"log"
 	"reflect"
 	"strings"
@@ -14,6 +15,11 @@ type (
 	Agent interface {
 		Plugin
 		Execute(Request) Result
+	}
+
+	Transport interface {
+		Plugin
+		Exec(cmd string) (io.Reader, io.Reader, error)
 	}
 
 	Request struct {
@@ -115,4 +121,8 @@ func AvailableAgents() map[string]Description {
 
 func AvailablePlugins() map[string]Description {
 	return getPlugins(reflect.TypeOf((*Plugin)(nil)).Elem())
+}
+
+func AvailableTransports() map[string]Description {
+	return getPlugins(reflect.TypeOf((*Transport)(nil)).Elem())
 }
