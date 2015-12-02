@@ -1,7 +1,6 @@
 package icmpping
 
 import (
-	"fmt"
 	"math/rand"
 	"net"
 	"os"
@@ -43,8 +42,6 @@ func init() {
 		} else {
 			logger.Error("icmpping", err.Error())
 		}
-
-		os.Exit(1)
 	}
 
 	active = make(map[uint16]chan IcmpReply)
@@ -94,8 +91,9 @@ func ListenLoop() {
 	for {
 		_, peer, err := conn.ReadFrom(readBytes)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			logger.Red("icmpping", err.Error())
+			time.Sleep(5 * time.Second)
+			continue
 		}
 
 		packet := gopacket.NewPacket(readBytes, layers.LayerTypeICMPv4, gopacket.NoCopy)
