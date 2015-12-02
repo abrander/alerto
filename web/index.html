@@ -120,13 +120,6 @@
 
   <script type="text/ng-template" id="newMonitorTemplate">
    <div>
-    <label>Host</label>
-    <div class="input-group">
-      <select ng-model="newMonitor.hostId">
-       <option ng-repeat="value in hosts" value="{{ value.id }}">{{ value.name }}</option>
-      </select>
-     </div>
-    </div>
     <div>
      <label>Check interval</label>
      <div class="input-group">
@@ -134,6 +127,15 @@
       <span class="input-group-addon">seconds</span>
      </div>
     </div>
+
+    <label>Host</label>
+    <div class="input-group">
+      <select class="form-control" ng-model="newMonitor.hostId">
+       <option ng-repeat="value in hosts" value="{{ value.id }}" ng-selected="$first">{{ value.name }}</option>
+      </select>
+     </div>
+    </div>
+
     <div ng-repeat="par in agent.parameters">
      <div ng-switch="par.type">
 
@@ -147,7 +149,7 @@
       <div ng-switch-when="enum">
        <label>{{ par.description }} ({{ par.name }})</label>
        <div class="input-group">
-        <select ng-model="newMonitor.agent.arguments[par.name]">
+        <select class="form-control" ng-model="newMonitor.agent.arguments[par.name]">
          <option ng-repeat="value in par.enumValues" value="{{ value }}">{{ value }}</option>
         </select>
        </div>

@@ -132,7 +132,6 @@ Alerto.Controller.MainController = function(HostService, MonitorService, $http, 
 		modalInstance.result.then(function(result) {
 			// Convert to seconds
 			result.interval *= 1000000000;
-//			result.hostId = '000000000000000000000000';
 			result.agent.agentId = agentId;
 			MonitorService.save(result);
 		});
@@ -210,7 +209,8 @@ Alerto.Controller.NewHostController = function($scope, $uibModalInstance) {
 	$scope.newHost = {
 		transportId: 'ssh-command',
 		transport: {
-			port: 22
+			port: 22,
+			username: 'root'
 		}
 	};
 
@@ -235,7 +235,10 @@ alerto.controller('NewHostController', Alerto.Controller.NewHostController);
 Alerto.Controller.NewMonitorController = function($scope, $uibModalInstance, agent, hosts) {
 	$scope.agent = agent;
 	$scope.hosts = hosts;
-	$scope.newMonitor = {};
+	$scope.newMonitor = {
+		interval: 30,
+		hostId: '00000000000000000000000'
+	};
 
 	$scope.ok = function() {
 		$uibModalInstance.close($scope.newMonitor);
