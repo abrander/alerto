@@ -1,6 +1,9 @@
 <!doctype html>
 <html ng-app="alerto">
   <head>
+    <script>
+    window.sshPublicKey = '[[ .sshPublicKey ]]';
+    </script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular-resource.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
@@ -115,6 +118,12 @@
    <div class="modal-footer">
     <button class="btn btn-primary" type="button" ng-click="ok()">Add host</button>
     <button class="btn btn-warning" type="button" ng-click="cancel()">Close</button>
+    <div class="text-left">
+    <h4>Add this to <code>~/.ssh/authorized_keys</code> <span ng-if="newHost.transport.host">on</span> {{ newHost.transport.host }}</h4>
+    <pre>{{ sshPublicKey }}</pre>
+    <h4>Or run:</h4>
+    <pre>ssh-copy-id -i /etc/alerto/id_rsa -p {{ newHost.transport.port }} {{ newHost.transport.username }}@{{ newHost.transport.host }}</pre>
+    </div>
    </div>
  </script>
 

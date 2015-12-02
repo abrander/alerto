@@ -1,6 +1,7 @@
 package api
 
 import (
+	"html/template"
 	"net/http"
 	"sync"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/abrander/alerto/monitor"
 	"github.com/abrander/alerto/plugins"
+	"github.com/abrander/alerto/plugins/ssh"
 )
 
 type (
@@ -78,7 +80,7 @@ func Run(wg sync.WaitGroup) {
 	router := gin.New()
 	router.Use(gin.Logger())
 
-	router.Use(static.Serve("/", static.LocalFile("/home/abrander/gocode/src/github.com/abrander/alerto/web/", true)))
+	router.Use(static.Serve("/", static.LocalFile("/home/abrander/gocode/src/github.com/abrander/alerto/web/", false)))
 
 	router.GET("/ws", func(c *gin.Context) {
 		wshandler(c.Writer, c.Request)
@@ -181,6 +183,15 @@ func Run(wg sync.WaitGroup) {
 			c.JSON(200, plugins.AvailableTransports())
 		})
 	}
+
+	templ := template.Must(template.New("web/index.html").Delims("[[", "]]").ParseFiles("web/index.html"))
+	router.SetHTMLTemplate(templ)
+
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"sshPublicKey": ssh.PublicKey,
+		})
+	})
 
 	router.Run(":9901")
 

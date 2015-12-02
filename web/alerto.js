@@ -205,6 +205,7 @@ alerto.controller('MainController', Alerto.Controller.MainController);
  */
 Alerto.Controller.NewHostController = function($scope, $uibModalInstance) {
 	// FIXME: This is currently hardcoded to the ssh transport. This should be fixed.
+	$scope.sshPublicKey = window.sshPublicKey;
 	$scope.newHost = {};
 	$scope.newHost = {
 		transportId: 'ssh-command',
