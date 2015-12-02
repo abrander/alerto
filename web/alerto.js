@@ -33,6 +33,23 @@ Alerto.Service = {};
  * @ngInject
  * @suppress {checkTypes}
  */
+Alerto.Factory.HostService = function($resource) {
+	return $resource('/host/:id', {id: '@id'}, {
+		save: {
+			url: '/host/new',
+			method: 'POST'
+		}
+	});
+};
+
+alerto.factory('HostService', Alerto.Factory.HostService);
+
+/**
+ * @constructor
+ * @param {*} $resource
+ * @ngInject
+ * @suppress {checkTypes}
+ */
 Alerto.Factory.MonitorService = function($resource) {
 	return $resource('/monitor/:id', {id: '@id'}, {
 		save: {
@@ -48,9 +65,10 @@ alerto.factory('MonitorService', Alerto.Factory.MonitorService);
  * @ngInject
  * @constructor
  */
-Alerto.Controller.MainController = function(MonitorService, $http, $uibModal, $scope) {
+Alerto.Controller.MainController = function(HostService, MonitorService, $http, $uibModal, $scope) {
 	var self = this;
 
+	this.hosts = HostService.query();
 	this.monitors = MonitorService.query();
 	this.uptime = 0;
 
@@ -58,6 +76,30 @@ Alerto.Controller.MainController = function(MonitorService, $http, $uibModal, $s
 	$http.get('/agent/').then(function(response) {
 		self.agents = response.data;
 	});
+
+	/**
+	 * @expose
+	 */
+	this.addHost = function() {
+		var modalInstance = $uibModal.open({
+			animation: true,
+			templateUrl: 'newHostModalTemplate',
+			controller: 'NewHostController',
+			size: 'lg',
+			resolve: {
+				}
+			});
+		modalInstance.result.then(function(result) {
+			HostService.save(result);
+		});
+	};
+
+	/**
+	 * @expose
+	 */
+	this.deleteHost = function(id) {
+		HostService.delete({id: id});
+	};
 
 	/**
 	 * @expose
@@ -87,6 +129,7 @@ Alerto.Controller.MainController = function(MonitorService, $http, $uibModal, $s
 		modalInstance.result.then(function(result) {
 			// Convert to seconds
 			result.interval *= 1000000000;
+			result.hostId = '000000000000000000000000';
 			result.agent.agentId = agentId;
 			MonitorService.save(result);
 		});
@@ -109,6 +152,23 @@ Alerto.Controller.MainController = function(MonitorService, $http, $uibModal, $s
 			switch (message.type) {
 				case 'status':
 					self.uptime = message.payload.uptime;
+					break;
+				case 'hostadd':
+					self.hosts.push(message.payload);
+					break;
+				case 'hostchange':
+					self.hosts.forEach(function(monitor, index) {
+						if (monitor.id == message.payload.id) {
+							self.hosts[index] = message.payload;
+						}
+					});
+					break;
+				case 'hostdelete':
+					self.hosts.forEach(function(monitor, index) {
+						if (monitor.id == message.payload) {
+							self.hosts.splice(index, 1);
+						}
+					});
 					break;
 				case 'monadd':
 					self.monitors.push(message.payload);
@@ -136,6 +196,34 @@ Alerto.Controller.MainController = function(MonitorService, $http, $uibModal, $s
 };
 
 alerto.controller('MainController', Alerto.Controller.MainController);
+
+/**
+ * @ngInject
+ * @constructor
+ */
+Alerto.Controller.NewHostController = function($scope, $uibModalInstance) {
+	// FIXME: This is currently hardcoded to the ssh transport. This should be fixed.
+	$scope.newHost = {};
+	$scope.newHost = {
+		transportId: 'ssh-command',
+		transport: {
+			port: 22
+		}
+	};
+
+	$scope.ok = function() {
+		// FIXME: Hardcoded name
+		$scope.newHost.name = $scope.newHost.transport.host;
+
+		$uibModalInstance.close($scope.newHost);
+	};
+
+	$scope.cancel = function() {
+		$uibModalInstance.dismiss('cancel');
+	};
+};
+
+alerto.controller('NewHostController', Alerto.Controller.NewHostController);
 
 /**
  * @ngInject

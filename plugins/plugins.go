@@ -99,6 +99,12 @@ func getParams(elem reflect.Type) []Parameter {
 	return parameters
 }
 
+func GetPlugin(pluginId string) (Constructor, bool) {
+	p, found := plugins[pluginId]
+
+	return p, found
+}
+
 func getPlugins(iType reflect.Type) map[string]Description {
 	r := make(map[string]Description)
 

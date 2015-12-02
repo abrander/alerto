@@ -17,6 +17,7 @@ import (
 type (
 	Monitor struct {
 		Id         bson.ObjectId  `json:"id" bson:"_id"`
+		HostId     bson.ObjectId  `json:"hostId" bson:"hostId"`
 		Interval   time.Duration  `json:"interval"`
 		Agent      plugins.Job    `json:"agent"`
 		LastCheck  time.Time      `json:"lastCheck"`
@@ -26,14 +27,15 @@ type (
 
 	Change struct {
 		Type    string      `json:"type"`
-		Monitor interface{} `json:"payload"`
+		Payload interface{} `json:"payload"`
 	}
 )
 
 var (
-	sess       *mgo.Session
-	db         *mgo.Database
-	collection *mgo.Collection
+	sess              *mgo.Session
+	db                *mgo.Database
+	hostCollection    *mgo.Collection
+	monitorCollection *mgo.Collection
 
 	ErrorInvalidId error = errors.New("Invalid id")
 
@@ -49,13 +51,14 @@ func init() {
 	}
 
 	db = sess.DB("alerto")
-	collection = db.C("monitors")
+	hostCollection = db.C("hosts")
+	monitorCollection = db.C("monitors")
 }
 
 func GetAllMonitors() []Monitor {
 	var monitors []Monitor
 
-	err := collection.Find(bson.M{}).All(&monitors)
+	err := monitorCollection.Find(bson.M{}).All(&monitors)
 	if err != nil {
 		logger.Red("monitor", "Error getting monitors from Mongo: %s", err.Error())
 	}
@@ -70,7 +73,7 @@ func GetMonitor(id string) (Monitor, error) {
 		return monitor, ErrorInvalidId
 	}
 
-	err := collection.FindId(bson.ObjectIdHex(id)).One(&monitor)
+	err := monitorCollection.FindId(bson.ObjectIdHex(id)).One(&monitor)
 	if err != nil {
 		logger.Red("monitor", "Error getting monitors from Mongo: %s", err.Error())
 		return monitor, err
@@ -82,7 +85,7 @@ func GetMonitor(id string) (Monitor, error) {
 func UpdateMonitor(mon *Monitor) error {
 	change := Change{
 		Type:    "monchange",
-		Monitor: *mon,
+		Payload: *mon,
 	}
 
 	channelLock.Lock()
@@ -91,7 +94,7 @@ func UpdateMonitor(mon *Monitor) error {
 	}
 	channelLock.Unlock()
 
-	return collection.UpdateId(mon.Id, mon)
+	return monitorCollection.UpdateId(mon.Id, mon)
 }
 
 func AddMonitor(mon *Monitor) error {
@@ -99,7 +102,7 @@ func AddMonitor(mon *Monitor) error {
 
 	change := Change{
 		Type:    "monadd",
-		Monitor: *mon,
+		Payload: *mon,
 	}
 
 	channelLock.Lock()
@@ -108,7 +111,7 @@ func AddMonitor(mon *Monitor) error {
 	}
 	channelLock.Unlock()
 
-	return collection.Insert(mon)
+	return monitorCollection.Insert(mon)
 }
 
 func DeleteMonitor(id string) error {
@@ -118,7 +121,7 @@ func DeleteMonitor(id string) error {
 
 	change := Change{
 		Type:    "mondelete",
-		Monitor: id,
+		Payload: id,
 	}
 
 	channelLock.Lock()
@@ -127,7 +130,7 @@ func DeleteMonitor(id string) error {
 	}
 	channelLock.Unlock()
 
-	return collection.RemoveId(bson.ObjectIdHex(id))
+	return monitorCollection.RemoveId(bson.ObjectIdHex(id))
 }
 
 func SubscribeChanges() chan Change {
@@ -158,7 +161,7 @@ func Loop(wg sync.WaitGroup) {
 	inFlightLock := sync.RWMutex{}
 	for t := range ticker {
 		var monitors []Monitor
-		err := collection.Find(bson.M{}).All(&monitors)
+		err := monitorCollection.Find(bson.M{}).All(&monitors)
 		if err != nil {
 			logger.Red("monitor", "Error getting monitors from Mongo: %s", err.Error())
 			continue

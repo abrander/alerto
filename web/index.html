@@ -70,7 +70,51 @@
      </tr>
     </table>
    </div>
+
+   <div class="container">
+    <h3>Hosts</h3>
+    <table class="table">
+     <tr ng-repeat="host in main.hosts">
+      <td>{{ host | json }}</td>
+      <td>
+       <div class="btn-group btn-group-xs" role="group" aria-label="...">
+        <button type="button" class="btn btn-danger" ng-click="main.deleteHost(host.id)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
+       </div>
+      </td>
+     </tr>
+    </table>
+    <button class="btn btn-default btn-sm" ng-click="main.addHost()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add host</button>
+   </div>
+
   </body>
+
+  <script type="text/ng-template" id="newHostModalTemplate">
+   <div class="modal-header">
+    <h3 class="modal-title">Add SSH host</h3>
+   </div>
+   <div class="modal-body">
+
+    <label>Hostname</label>
+    <div class="input-group">
+     <input class="form-control" ng-model="newHost.transport.host"></input>
+    </div>
+
+    <label>SSH port</label>
+    <div class="input-group">
+     <input class="form-control" ng-model="newHost.transport.port" type="number"></input>
+    </div>
+
+    <label>Username</label>
+    <div class="input-group">
+     <input class="form-control" ng-model="newHost.transport.username"></input>
+    </div>
+
+   </div>
+   <div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="ok()">Add host</button>
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Close</button>
+   </div>
+ </script>
 
   <script type="text/ng-template" id="newMonitorTemplate">
     <div>
@@ -134,4 +178,5 @@
     <button class="btn btn-warning" type="button" ng-click="cancel()">Close</button>
    </div>
  </script>
+
 </html>

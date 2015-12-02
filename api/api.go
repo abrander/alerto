@@ -84,17 +84,40 @@ func Run(wg sync.WaitGroup) {
 		wshandler(c.Writer, c.Request)
 	})
 
-	t := router.Group("/transport")
-	{
-		t.GET("/", func(c *gin.Context) {
-			c.JSON(200, plugins.AvailableTransports())
-		})
-	}
-
 	a := router.Group("/agent")
 	{
 		a.GET("/", func(c *gin.Context) {
 			c.JSON(200, plugins.AvailableAgents())
+		})
+
+	}
+
+	h := router.Group("/host")
+	{
+		h.DELETE("/:id", func(c *gin.Context) {
+			id := c.Param("id")
+
+			err := monitor.DeleteHost(id)
+			if err != nil {
+				c.AbortWithError(500, err)
+			} else {
+				c.JSON(200, nil)
+			}
+		})
+
+		h.POST("/new", func(c *gin.Context) {
+			var host monitor.Host
+			c.Bind(&host)
+			err := monitor.AddHost(&host)
+			if err != nil {
+				c.AbortWithError(500, err)
+			} else {
+				c.JSON(200, host)
+			}
+		})
+
+		h.GET("/", func(c *gin.Context) {
+			c.JSON(200, monitor.GetAllHosts())
 		})
 	}
 
@@ -151,6 +174,14 @@ func Run(wg sync.WaitGroup) {
 			c.JSON(200, monitor.GetAllMonitors())
 		})
 	}
+
+	t := router.Group("/transport")
+	{
+		t.GET("/", func(c *gin.Context) {
+			c.JSON(200, plugins.AvailableTransports())
+		})
+	}
+
 	router.Run(":9901")
 
 	wg.Done()
