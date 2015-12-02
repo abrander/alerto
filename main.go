@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/abrander/alerto/api"
+	_ "github.com/abrander/alerto/config"
 	"github.com/abrander/alerto/monitor"
 	_ "github.com/abrander/alerto/plugins/dns"
 	_ "github.com/abrander/alerto/plugins/http"
