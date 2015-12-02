@@ -155,6 +155,22 @@ func UnsubscribeChanges(ch chan Change) {
 }
 
 func Loop(wg sync.WaitGroup) {
+	_, err := GetHost("000000000000000000000000")
+	if err != nil {
+		p, found := plugins.GetPlugin("localtransport")
+		if !found {
+			logger.Red("monitor", "localtransport plugin not found")
+		}
+		host := Host{
+			Id:          bson.ObjectIdHex("000000000000000000000000"),
+			Name:        "localhost",
+			TransportId: "localtransport",
+			Transport:   p().(plugins.Transport),
+		}
+		hostCollection.Insert(host)
+		logger.Yellow("monitor", "Added localhost transport with id %s", host.Id.String())
+	}
+
 	ticker := time.Tick(time.Millisecond * 100)
 
 	inFlight := make(map[bson.ObjectId]bool)
