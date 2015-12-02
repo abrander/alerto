@@ -192,7 +192,9 @@ func Loop(wg sync.WaitGroup) {
 				inFlightLock.Unlock()
 
 				go func(mon Monitor) {
-					r := mon.Agent.Run()
+					var host Host
+					hostCollection.FindId(mon.HostId).One(&host)
+					r := mon.Agent.Run(host.Transport)
 					if r.Status == plugins.Ok {
 						logger.Green("monitor", "%s %s: %s [%s]: %s", mon.Id.Hex(), mon.Agent.AgentId, r.Text, r.Duration, r.Measurements)
 					} else {

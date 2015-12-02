@@ -44,7 +44,7 @@
       <td>{{ mon.agent.arguments | json }}</td>
       <td>{{ mon.lastResult.Measurements | json }}</td>
       <td>{{ mon.lastResult.Measurements.time | goDuration }}</td>
-      <td>
+      <td class="text-right">
        <div class="btn-group btn-group-xs" role="group" aria-label="...">
         <button type="button" class="btn btn-danger" ng-click="main.deleteMonitor(mon.id)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
        </div>
@@ -64,7 +64,7 @@
          {{ par.description }}
         </span>
       </td>
-      <td>
+      <td class="text-right">
        <button class="btn btn-default btn-xs" ng-click="main.addMonitor(name)"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add monitor</button>
       </td>
      </tr>
@@ -75,8 +75,10 @@
     <h3>Hosts</h3>
     <table class="table">
      <tr ng-repeat="host in main.hosts">
-      <td>{{ host | json }}</td>
-      <td>
+      <td>{{ host.id }}</td>
+      <td>{{ host.name }}</td>
+      <td>{{ host.transport | json }}</td>
+      <td class="text-right">
        <div class="btn-group btn-group-xs" role="group" aria-label="...">
         <button type="button" class="btn btn-danger" ng-click="main.deleteHost(host.id)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
        </div>
@@ -117,6 +119,14 @@
  </script>
 
   <script type="text/ng-template" id="newMonitorTemplate">
+   <div>
+    <label>Host</label>
+    <div class="input-group">
+      <select ng-model="newMonitor.hostId">
+       <option ng-repeat="value in hosts" value="{{ value.id }}">{{ value.name }}</option>
+      </select>
+     </div>
+    </div>
     <div>
      <label>Check interval</label>
      <div class="input-group">

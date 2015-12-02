@@ -22,15 +22,16 @@ type (
 	}
 )
 
-func (n *Noop) Execute(request plugins.Request) plugins.Result {
+func (n *Noop) Run(transport plugins.Transport, request plugins.Request) plugins.Result {
 	time.Sleep(n.Delay)
 	return plugins.NewResult(plugins.Ok, nil, "noop ;-)")
 }
 
-func (n *Noop) Exec(cmd string) (io.Reader, io.Reader, error) {
+func (n *Noop) Exec(cmd string, arguments ...string) (io.Reader, io.Reader, error) {
 	var stdoutBuf, stderrBuf bytes.Buffer
 	return &stdoutBuf, &stderrBuf, nil
 }
 
 // Ensure compliance
+var _ plugins.Agent = (*Noop)(nil)
 var _ plugins.Transport = (*Noop)(nil)

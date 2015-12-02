@@ -21,7 +21,7 @@ type (
 	}
 )
 
-func (h *Http) Execute(request plugins.Request) plugins.Result {
+func (h *Http) Run(transport plugins.Transport, request plugins.Request) plugins.Result {
 	start := time.Now()
 
 	resp, err := http.Get(h.Url)
@@ -37,3 +37,6 @@ func (h *Http) Execute(request plugins.Request) plugins.Result {
 
 	return plugins.NewResult(plugins.Ok, c, "returned %d", resp.StatusCode)
 }
+
+// Ensure compliance
+var _ plugins.Agent = (*Http)(nil)

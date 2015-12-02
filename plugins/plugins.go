@@ -14,12 +14,12 @@ type (
 
 	Agent interface {
 		Plugin
-		Execute(Request) Result
+		Run(Transport, Request) Result
 	}
 
 	Transport interface {
 		Plugin
-		Exec(cmd string) (io.Reader, io.Reader, error)
+		Exec(cmd string, arguments ...string) (io.Reader, io.Reader, error)
 	}
 
 	Request struct {

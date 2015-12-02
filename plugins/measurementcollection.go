@@ -27,6 +27,8 @@ func NewMeasurementCollection(args ...interface{}) *MeasurementCollection {
 				c[key] = Measurement(value.(int))
 			case int64:
 				c[key] = Measurement(value.(int64))
+			case uint64:
+				c[key] = Measurement(value.(uint64))
 			case float32:
 				c[key] = Measurement(value.(float32))
 			case float64:

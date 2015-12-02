@@ -131,7 +131,7 @@ func ListenLoop() {
 	}
 }
 
-func (i *IcmpPing) Execute(request plugins.Request) plugins.Result {
+func (i *IcmpPing) Run(transport plugins.Transport, request plugins.Request) plugins.Result {
 	ra, err := net.ResolveIPAddr("ip4:icmp", i.Target)
 
 	if err != nil {
@@ -191,3 +191,6 @@ func (i *IcmpPing) Execute(request plugins.Request) plugins.Result {
 		}
 	}
 }
+
+// Ensure compliance
+var _ plugins.Agent = (*IcmpPing)(nil)

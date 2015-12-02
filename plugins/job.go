@@ -112,7 +112,7 @@ func (job *Job) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
-func (job *Job) Run() Result {
+func (job *Job) Run(transport Transport) Result {
 	start := time.Now()
 
 	request := Request{
@@ -123,7 +123,7 @@ func (job *Job) Run() Result {
 		request.Timeout = time.Second
 	}
 
-	result := job.Agent.Execute(request)
+	result := job.Agent.Run(transport, request)
 	result.Duration = time.Now().Sub(start)
 
 	return result

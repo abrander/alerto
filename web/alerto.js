@@ -123,13 +123,16 @@ Alerto.Controller.MainController = function(HostService, MonitorService, $http, 
 					var agent = self.agents[agentId];
 					agent.agentId = agentId;
 					return agent;
+					},
+				hosts: function() {
+					return self.hosts;
 					}
 				}
 			});
 		modalInstance.result.then(function(result) {
 			// Convert to seconds
 			result.interval *= 1000000000;
-			result.hostId = '000000000000000000000000';
+//			result.hostId = '000000000000000000000000';
 			result.agent.agentId = agentId;
 			MonitorService.save(result);
 		});
@@ -229,8 +232,9 @@ alerto.controller('NewHostController', Alerto.Controller.NewHostController);
  * @ngInject
  * @constructor
  */
-Alerto.Controller.NewMonitorController = function($scope, $uibModalInstance, agent) {
+Alerto.Controller.NewMonitorController = function($scope, $uibModalInstance, agent, hosts) {
 	$scope.agent = agent;
+	$scope.hosts = hosts;
 	$scope.newMonitor = {};
 
 	$scope.ok = function() {

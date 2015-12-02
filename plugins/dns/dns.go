@@ -65,7 +65,7 @@ func GetIPv6(hostname string) ([]net.IP, error) {
 	return list6, nil
 }
 
-func (i *Dns) Execute(request plugins.Request) plugins.Result {
+func (i *Dns) Run(transport plugins.Transport, request plugins.Request) plugins.Result {
 	entries := []net.IP{}
 
 	start := time.Now()
@@ -95,3 +95,6 @@ func (i *Dns) Execute(request plugins.Request) plugins.Result {
 		return plugins.NewResult(plugins.Failed, plugins.NewMeasurementCollection("time", time.Now().Sub(start)), "no addresses")
 	}
 }
+
+// Ensure compliance
+var _ plugins.Agent = (*Dns)(nil)

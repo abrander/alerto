@@ -22,7 +22,11 @@ func NewSshCommand() plugins.Plugin {
 	return new(SshCommand)
 }
 
-func (s *SshCommand) Exec(cmd string) (io.Reader, io.Reader, error) {
+func (s *SshCommand) Exec(cmd string, arguments ...string) (io.Reader, io.Reader, error) {
+	for _, arg := range arguments {
+		cmd += " " + arg
+	}
+
 	logger.Yellow("ssh", "Executing command '%s' on %s:%d as %s", cmd, s.Ssh.Host, s.Ssh.Port, s.Username)
 	conn, err := pool.Get(s.Ssh)
 	if err != nil {
