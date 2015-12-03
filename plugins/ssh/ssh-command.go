@@ -3,6 +3,7 @@ package ssh
 import (
 	"bytes"
 	"io"
+	"net"
 
 	"github.com/abrander/alerto/logger"
 	"github.com/abrander/alerto/plugins"
@@ -50,6 +51,18 @@ func (s *SshCommand) Exec(cmd string, arguments ...string) (io.Reader, io.Reader
 	}
 
 	return &stdoutBuf, &stderrBuf, nil
+}
+
+func (s *SshCommand) Dial(network string, address string) (net.Conn, error) {
+	conn, err := pool.Get(s.Ssh)
+	if err != nil {
+		return nil, err
+	}
+	defer pool.Done(s.Ssh) // FIXME: This can easily leak ssh connections
+
+	logger.Yellow("ssh", "Dialing %s://%s via ssh://%s@%s:%d", network, address, s.Ssh.Username, s.Ssh.Host, s.Ssh.Port)
+
+	return conn.Dial(network, address)
 }
 
 // Ensure compliance

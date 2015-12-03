@@ -3,7 +3,9 @@ package localtransport
 import (
 	"bytes"
 	"io"
+	"net"
 	"os/exec"
+	"time"
 
 	"github.com/abrander/alerto/plugins"
 )
@@ -35,6 +37,15 @@ func (l *LocalTransport) Exec(cmd string, arguments ...string) (io.Reader, io.Re
 	err = command.Run()
 
 	return &out, stderr, err
+}
+
+func (l *LocalTransport) Dial(network string, address string) (net.Conn, error) {
+	dialer := &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
+
+	return dialer.Dial(network, address)
 }
 
 // Ensure compliance

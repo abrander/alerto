@@ -3,6 +3,7 @@ package noop
 import (
 	"bytes"
 	"io"
+	"net"
 	"time"
 
 	"github.com/abrander/alerto/plugins"
@@ -30,6 +31,10 @@ func (n *Noop) Run(transport plugins.Transport, request plugins.Request) plugins
 func (n *Noop) Exec(cmd string, arguments ...string) (io.Reader, io.Reader, error) {
 	var stdoutBuf, stderrBuf bytes.Buffer
 	return &stdoutBuf, &stderrBuf, nil
+}
+
+func (n *Noop) Dial(network string, address string) (net.Conn, error) {
+	return nil, nil
 }
 
 // Ensure compliance

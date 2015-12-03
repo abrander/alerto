@@ -3,6 +3,7 @@ package plugins
 import (
 	"io"
 	"log"
+	"net"
 	"reflect"
 	"strings"
 	"time"
@@ -20,6 +21,7 @@ type (
 	Transport interface {
 		Plugin
 		Exec(cmd string, arguments ...string) (io.Reader, io.Reader, error)
+		Dial(network string, address string) (net.Conn, error)
 	}
 
 	Request struct {
