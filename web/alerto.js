@@ -81,7 +81,6 @@ Alerto.Controller.MainController = function(HostService, MonitorService, $http, 
 		found = {name: '-'};
 
 		self.hosts.forEach(function(host, index) {
-			console.log(host.id, id);
 			if (host.id == id) {
 				found = host;
 			}
