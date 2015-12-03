@@ -251,7 +251,7 @@ Alerto.Controller.NewMonitorController = function($scope, $uibModalInstance, age
 	$scope.hosts = hosts;
 	$scope.newMonitor = {
 		interval: 30,
-		hostId: '00000000000000000000000'
+		hostId: '000000000000000000000000'
 	};
 
 	$scope.ok = function() {
