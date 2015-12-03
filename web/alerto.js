@@ -77,6 +77,19 @@ Alerto.Controller.MainController = function(HostService, MonitorService, $http, 
 		self.agents = response.data;
 	});
 
+	this.getHost = function(id) {
+		found = {name: '-'};
+
+		self.hosts.forEach(function(host, index) {
+			console.log(host.id, id);
+			if (host.id == id) {
+				found = host;
+			}
+		});
+
+		return found;
+	};
+
 	/**
 	 * @expose
 	 */

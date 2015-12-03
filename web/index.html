@@ -42,6 +42,7 @@
     <table class="table">
      <tr ng-repeat="mon in main.monitors" flash-anim>
       <td>{{ mon.id }}</td>
+      <td>{{ main.getHost(mon.hostId).name }}</td>
       <td>{{ mon.interval | goDuration }}</td>
       <td>{{ mon.agent.agentId }}</td>
       <td>{{ mon.agent.arguments | json }}</td>
