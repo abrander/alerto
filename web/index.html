@@ -84,7 +84,7 @@
       <td>{{ host.transport | json }}</td>
       <td class="text-right">
        <div class="btn-group btn-group-xs" role="group" aria-label="...">
-        <button type="button" class="btn btn-danger" ng-click="main.deleteHost(host.id)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
+        <button ng-disabled="host.id == '000000000000000000000000'" type="button" class="btn btn-danger" ng-click="main.deleteHost(host.id)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
        </div>
       </td>
      </tr>
@@ -138,7 +138,7 @@
      </div>
     </div>
 
-    <label>Host</label>
+    <label>Run test at</label>
     <div class="input-group">
       <select class="form-control" ng-model="newMonitor.hostId">
        <option ng-repeat="value in hosts" value="{{ value.id }}" ng-selected="$first">{{ value.name }}</option>

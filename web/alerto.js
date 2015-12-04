@@ -299,11 +299,11 @@ Alerto.Filter.GoDuration = function() {
 		}
 
 		if (d < Minute) {
-			return (d / Second) + "s";
+			return (d / Second).toFixed(2) + "s";
 		}
 
 		if (d < Hour) {
-			return Math.floor(d / Minute) + "m" + Math.floor(d % Minute / Second) + "s";
+			return Math.floor(d / Minute) + "m" + (d % Minute / Second).toFixed(2) + "s";
 		}
 
 		return Math.floor(d / Hour) + "h" + Math.floor(d % Hour / Minute) + "m" + Math.floor(d % Minute / Second) + "s";
