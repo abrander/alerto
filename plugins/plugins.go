@@ -2,11 +2,12 @@ package plugins
 
 import (
 	"io"
-	"log"
 	"net"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/abrander/alerto/logger"
 )
 
 type (
@@ -61,7 +62,7 @@ var plugins = map[string]func() Plugin{}
 func Register(protocol string, constructor Constructor) {
 	_, exists := plugins[protocol]
 	if exists {
-		log.Fatal("plugins.Register(): Duplicate protocol: '%s' (%T and %T)\n", protocol, plugins[protocol], constructor())
+		logger.Error("plugins", "plugins.Register(): Duplicate protocol: '%s' (%T and %T)\n", protocol, plugins[protocol], constructor())
 		return
 	}
 
