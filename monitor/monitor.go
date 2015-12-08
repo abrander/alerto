@@ -46,7 +46,7 @@ var (
 func init() {
 	sess, err := mgo.Dial("127.0.0.1")
 	if err != nil {
-		logger.Error("monitor", "Can't connect to mongo, go error %v\n", err)
+		logger.Error("monitor", "Can't connect to mongo, go error %v", err)
 		os.Exit(1)
 	}
 
@@ -222,7 +222,7 @@ func Loop(wg sync.WaitGroup) {
 
 					err = UpdateMonitor(&mon)
 					if err != nil {
-						logger.Red("monitor", "Error updating: %s\n", err.Error())
+						logger.Red("monitor", "Error updating: %s", err.Error())
 					}
 					inFlightLock.Lock()
 					delete(inFlight, mon.Id)
