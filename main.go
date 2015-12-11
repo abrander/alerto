@@ -11,6 +11,7 @@ import (
 	_ "github.com/abrander/alerto/plugins/dns"
 	_ "github.com/abrander/alerto/plugins/http"
 	_ "github.com/abrander/alerto/plugins/icmpping"
+	_ "github.com/abrander/alerto/plugins/load"
 	_ "github.com/abrander/alerto/plugins/localtransport"
 	_ "github.com/abrander/alerto/plugins/noop"
 	_ "github.com/abrander/alerto/plugins/pidof"
