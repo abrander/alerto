@@ -23,6 +23,7 @@ type (
 		Plugin
 		Exec(cmd string, arguments ...string) (io.Reader, io.Reader, error)
 		Dial(network string, address string) (net.Conn, error)
+		ReadFile(path string) (io.Reader, error)
 	}
 
 	Request struct {

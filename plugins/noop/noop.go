@@ -37,6 +37,10 @@ func (n *Noop) Dial(network string, address string) (net.Conn, error) {
 	return nil, nil
 }
 
+func (n *Noop) ReadFile(path string) (io.Reader, error) {
+	return nil, nil
+}
+
 // Ensure compliance
 var _ plugins.Agent = (*Noop)(nil)
 var _ plugins.Transport = (*Noop)(nil)

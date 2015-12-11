@@ -65,5 +65,11 @@ func (s *SshCommand) Dial(network string, address string) (net.Conn, error) {
 	return conn.Dial(network, address)
 }
 
+func (s *SshCommand) ReadFile(path string) (io.Reader, error) {
+	r, _, err := s.Exec("/bin/cat", path)
+
+	return r, err
+}
+
 // Ensure compliance
 var _ plugins.Transport = (*SshCommand)(nil)

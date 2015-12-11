@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"net"
+	"os"
 	"os/exec"
 	"time"
 
@@ -46,6 +47,10 @@ func (l *LocalTransport) Dial(network string, address string) (net.Conn, error) 
 	}
 
 	return dialer.Dial(network, address)
+}
+
+func (l *LocalTransport) ReadFile(path string) (io.Reader, error) {
+	return os.Open(path)
 }
 
 // Ensure compliance
