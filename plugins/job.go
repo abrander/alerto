@@ -29,11 +29,6 @@ func (job *Job) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("agentId not found in document")
 	}
 
-	argumentsRaw, found := m["arguments"]
-	if !found {
-		return fmt.Errorf("arguments not found in document")
-	}
-
 	err = json.Unmarshal(agentRaw, &job.AgentId)
 	if err != nil {
 		return err
@@ -51,9 +46,12 @@ func (job *Job) UnmarshalJSON(data []byte) error {
 
 	job.Agent = agent
 
-	err = json.Unmarshal(argumentsRaw, job.Agent)
-	if err != nil {
-		return err
+	argumentsRaw, found := m["arguments"]
+	if found {
+		err = json.Unmarshal(argumentsRaw, job.Agent)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -100,13 +98,11 @@ func (job *Job) SetBSON(raw bson.Raw) error {
 	job.Agent = agent
 
 	argumentsRaw, found := m["arguments"]
-	if !found {
-		return fmt.Errorf("arguments not found in document")
-	}
-
-	err = argumentsRaw.Unmarshal(job.Agent)
-	if err != nil {
-		return err
+	if found {
+		err = argumentsRaw.Unmarshal(job.Agent)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
