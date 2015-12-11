@@ -21,6 +21,13 @@ type (
 	}
 )
 
+func (l Load) GetInfo() plugins.HumanInfo {
+	return plugins.HumanInfo{
+		Name:        "Load",
+		Description: "Read system load",
+	}
+}
+
 func (l *Load) Run(transport plugins.Transport, request plugins.Request) plugins.Result {
 	file, err := transport.ReadFile("/proc/loadavg")
 	if err != nil {

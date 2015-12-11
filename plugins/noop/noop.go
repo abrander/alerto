@@ -23,6 +23,13 @@ type (
 	}
 )
 
+func (n Noop) GetInfo() plugins.HumanInfo {
+	return plugins.HumanInfo{
+		Name:        "No-op",
+		Description: "Does nothing",
+	}
+}
+
 func (n *Noop) Run(transport plugins.Transport, request plugins.Request) plugins.Result {
 	time.Sleep(n.Delay)
 	return plugins.NewResult(plugins.Ok, nil, "noop ;-)")

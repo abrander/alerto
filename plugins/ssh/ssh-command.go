@@ -23,6 +23,13 @@ func NewSshCommand() plugins.Plugin {
 	return new(SshCommand)
 }
 
+func (d SshCommand) GetInfo() plugins.HumanInfo {
+	return plugins.HumanInfo{
+		Name:        "SSH",
+		Description: "Secure Shell",
+	}
+}
+
 func (s *SshCommand) Exec(cmd string, arguments ...string) (io.Reader, io.Reader, error) {
 	for _, arg := range arguments {
 		cmd += " " + arg

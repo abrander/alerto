@@ -12,6 +12,7 @@ import (
 
 type (
 	Plugin interface {
+		GetInfo() HumanInfo
 	}
 
 	Agent interface {
@@ -37,8 +38,14 @@ type (
 		Measurements *MeasurementCollection
 	}
 
+	HumanInfo struct {
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	}
+
 	Description struct {
 		Parameters []Parameter `json:"parameters"`
+		Info       HumanInfo   `json:"info"`
 	}
 
 	Parameter struct {
@@ -103,6 +110,14 @@ func getParams(elem reflect.Type) []Parameter {
 	return parameters
 }
 
+func getDescription(elem reflect.Type) Description {
+	pl := reflect.Zero(elem).Interface().(Plugin)
+	return Description{
+		Info:       pl.GetInfo(),
+		Parameters: getParams(elem),
+	}
+}
+
 func GetPlugin(pluginId string) (Constructor, bool) {
 	p, found := plugins[pluginId]
 
@@ -116,9 +131,7 @@ func getPlugins(iType reflect.Type) map[string]Description {
 		pType := reflect.TypeOf(plugin())
 		elem := reflect.TypeOf(plugin()).Elem()
 		if pType.Implements(iType) {
-			parameters := getParams(elem)
-
-			r[name] = Description{Parameters: parameters}
+			r[name] = getDescription(elem)
 		}
 	}
 

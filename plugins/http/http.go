@@ -31,6 +31,13 @@ type (
 	}
 )
 
+func (h Http) GetInfo() plugins.HumanInfo {
+	return plugins.HumanInfo{
+		Name:        "http",
+		Description: "Check response from http and https servers",
+	}
+}
+
 func newTransport(dialer func(network, addr string) (net.Conn, error)) *instrumentTransport {
 	tr := &instrumentTransport{
 		dialer: dialer,

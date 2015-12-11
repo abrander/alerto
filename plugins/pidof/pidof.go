@@ -21,6 +21,13 @@ type (
 	}
 )
 
+func (p PidOf) GetInfo() plugins.HumanInfo {
+	return plugins.HumanInfo{
+		Name:        "Find process",
+		Description: "Find a named process",
+	}
+}
+
 func (p *PidOf) Run(transport plugins.Transport, request plugins.Request) plugins.Result {
 	stdout, _, err := transport.Exec("/bin/pidof", p.ProcessName)
 	if err != nil {

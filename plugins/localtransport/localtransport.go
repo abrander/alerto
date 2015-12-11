@@ -24,6 +24,13 @@ type (
 	}
 )
 
+func (l LocalTransport) GetInfo() plugins.HumanInfo {
+	return plugins.HumanInfo{
+		Name:        "Local",
+		Description: "The Alerto hosts itself",
+	}
+}
+
 func (l *LocalTransport) Exec(cmd string, arguments ...string) (io.Reader, io.Reader, error) {
 	command := exec.Command(cmd, arguments...)
 

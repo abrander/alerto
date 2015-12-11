@@ -66,6 +66,13 @@ var conn *icmp.PacketConn
 var active map[uint16]chan IcmpReply
 var activeLock sync.RWMutex
 
+func (i IcmpPing) GetInfo() plugins.HumanInfo {
+	return plugins.HumanInfo{
+		Name:        "Ping",
+		Description: "ICMP echo response test for IPv4 hosts",
+	}
+}
+
 func decodeUnreachable(packetData []byte) (id uint16, seq uint16) {
 	packet := gopacket.NewPacket(packetData, layers.LayerTypeIPv4, gopacket.NoCopy)
 

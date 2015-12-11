@@ -22,6 +22,13 @@ type (
 	}
 )
 
+func (d Dns) GetInfo() plugins.HumanInfo {
+	return plugins.HumanInfo{
+		Name:        "DNS",
+		Description: "Make DNS query",
+	}
+}
+
 func GetIP(hostname string) ([]net.IP, error) {
 	list, err := net.LookupIP(hostname)
 	if err != nil {
